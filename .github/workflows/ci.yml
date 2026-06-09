@@ -25,13 +25,13 @@ jobs:
         DEBUG: ${{secrets.DEBUG}}
     - name: Get Composer Cache Directory
       id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
     - name: Cache dependencies
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ matrix.os }}-composer-${{ hashFiles('**/composer.json') }}
-        restore-keys: ${{ matrix.os }}-composer-
+        key: php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: php-${{ matrix.php }}-composer-
     - name: Install dependencies
       run: composer install --prefer-source
     - name: Run unit tests
