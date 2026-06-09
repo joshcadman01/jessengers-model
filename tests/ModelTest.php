@@ -4,6 +4,13 @@ use PHPUnit\Framework\TestCase;
 
 class ModelTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        ModelStub::reguard();
+
+        parent::tearDown();
+    }
+
     public function testAttributeManipulation()
     {
         $model = new ModelStub;
@@ -223,13 +230,15 @@ class ModelTest extends TestCase
     public function testGuardedCallback()
     {
         ModelStub::unguard();
-        $mock = $this->getMockBuilder('stdClass')
-            ->addMethods(['callback'])
-            ->getMock();
-        $mock->expects($this->once())
-            ->method('callback')
-            ->willReturn('foo');
-        $string = ModelStub::unguarded([$mock, 'callback']);
+
+        $stub = new class {
+            public function callback()
+            {
+                return 'foo';
+            }
+        };
+
+        $string = ModelStub::unguarded([$stub, 'callback']);
         $this->assertEquals('foo', $string);
         ModelStub::reguard();
     }
